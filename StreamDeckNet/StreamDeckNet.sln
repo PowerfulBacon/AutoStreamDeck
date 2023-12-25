@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamDeckNet", "StreamDeckNet.csproj", "{2AC4E3D4-0D56-442D-9C49-60383F39AB07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoStreamDeck", "AutoStreamDeck.csproj", "{2AC4E3D4-0D56-442D-9C49-60383F39AB07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamplePlugin", "..\ExamplePlugin\ExamplePlugin.csproj", "{90570A05-FD19-4678-9D65-E4CD63860839}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamplePlugin", "..\ExamplePlugin\ExamplePlugin.csproj", "{90570A05-FD19-4678-9D65-E4CD63860839}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

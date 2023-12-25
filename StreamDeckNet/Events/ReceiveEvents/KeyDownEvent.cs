@@ -1,4 +1,4 @@
-﻿using StreamDeckNet.Objects;
+﻿using StreamDeckNet.Objects.StreamDeckObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StreamDeckNet.Events.ReceiveEvents
 {
-	[ReceiveEventName("keyDown")]
+    [ReceiveEventName("keyDown")]
 	[ReceiveEventFunctionName("OnKeyDown")]
 	public class KeyDownEvent<TSettings> : ReceiveEvent<KeyDownPayload<TSettings>>
 	{

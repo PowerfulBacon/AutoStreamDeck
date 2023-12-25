@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StreamDeckNet\StreamDeckNet.csproj" />
+    <ProjectReference Include="..\AutoStreamDeck\AutoStreamDeck.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 ﻿
-using StreamDeckNet;
+using AutoStreamDeck;
 using System.Diagnostics;
 
 // If the debugger is attached, then build the plugin and load it with streamdeck instead.

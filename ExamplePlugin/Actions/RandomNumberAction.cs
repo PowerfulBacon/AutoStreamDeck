@@ -1,5 +1,5 @@
-﻿using StreamDeckNet.Actions;
-using StreamDeckNet.Events.ReceiveEvents;
+﻿using AutoStreamDeck.Actions;
+using AutoStreamDeck.Events.ReceiveEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
