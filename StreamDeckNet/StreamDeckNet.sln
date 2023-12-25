@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamDeckNet", "StreamDeckNet.csproj", "{2AC4E3D4-0D56-442D-9C49-60383F39AB07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamplePlugin", "..\ExamplePlugin\ExamplePlugin.csproj", "{90570A05-FD19-4678-9D65-E4CD63860839}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2AC4E3D4-0D56-442D-9C49-60383F39AB07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AC4E3D4-0D56-442D-9C49-60383F39AB07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AC4E3D4-0D56-442D-9C49-60383F39AB07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AC4E3D4-0D56-442D-9C49-60383F39AB07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90570A05-FD19-4678-9D65-E4CD63860839}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90570A05-FD19-4678-9D65-E4CD63860839}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90570A05-FD19-4678-9D65-E4CD63860839}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90570A05-FD19-4678-9D65-E4CD63860839}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C36EE8EF-AC4A-48FE-847B-E9740256AF42}
+	EndGlobalSection
+EndGlobal
