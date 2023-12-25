@@ -1,4 +1,4 @@
-﻿using StreamDeckNet.Objects.StreamDeckObjects;
+﻿using AutoStreamDeck.Objects.StreamDeckObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Events.ReceiveEvents
+namespace AutoStreamDeck.Events.ReceiveEvents
 {
     [ReceiveEventName("keyDown")]
 	[ReceiveEventFunctionName("OnKeyDown")]

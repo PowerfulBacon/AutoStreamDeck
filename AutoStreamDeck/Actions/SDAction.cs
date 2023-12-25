@@ -1,14 +1,14 @@
-﻿using StreamDeckNet.Enums;
-using StreamDeckNet.Events;
-using StreamDeckNet.Events.ReceiveEvents;
-using StreamDeckNet.Events.SendEvents;
+﻿using AutoStreamDeck.Enums;
+using AutoStreamDeck.Events;
+using AutoStreamDeck.Events.ReceiveEvents;
+using AutoStreamDeck.Events.SendEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Actions
+namespace AutoStreamDeck.Actions
 {
 	public interface ISDAction
 	{

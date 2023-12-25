@@ -1,5 +1,5 @@
-﻿using StreamDeckNet.Events.SendEvents;
-using StreamDeckNet.Objects;
+﻿using AutoStreamDeck.Events.SendEvents;
+using AutoStreamDeck.Objects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet
+namespace AutoStreamDeck
 {
     /// <summary>
     /// 

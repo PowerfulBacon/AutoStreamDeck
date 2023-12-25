@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Objects.StreamDeckObjects
+namespace AutoStreamDeck.Objects.StreamDeckObjects
 {
 	public class Coordinate
 	{

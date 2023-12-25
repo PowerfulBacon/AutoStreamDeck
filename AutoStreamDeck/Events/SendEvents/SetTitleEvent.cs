@@ -1,5 +1,5 @@
-﻿using StreamDeckNet.Actions;
-using StreamDeckNet.Enums;
+﻿using AutoStreamDeck.Actions;
+using AutoStreamDeck.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Events.SendEvents
+namespace AutoStreamDeck.Events.SendEvents
 {
     internal class SetTitleEvent : SendEvent<SetTitlePayload>
     {

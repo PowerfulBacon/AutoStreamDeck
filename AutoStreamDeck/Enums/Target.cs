@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Actions
+namespace AutoStreamDeck.Enums
 {
-	public class NoSettings
+	public enum Target
 	{
+		SOFTWARE = 2,
+		HARDWARE = 1,
+		BOTH = 0,
 	}
 }

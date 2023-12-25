@@ -1,6 +1,6 @@
-﻿using StreamDeckNet.Actions;
-using StreamDeckNet.Events.ReceiveEvents;
-using StreamDeckNet.Extensions;
+﻿using AutoStreamDeck.Actions;
+using AutoStreamDeck.Events.ReceiveEvents;
+using AutoStreamDeck.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Objects
+namespace AutoStreamDeck.Objects
 {
 	internal class ContextualAction
 	{

@@ -1,5 +1,5 @@
-﻿using StreamDeckNet.Actions;
-using StreamDeckNet.Events.SendEvents;
+﻿using AutoStreamDeck.Actions;
+using AutoStreamDeck.Events.SendEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Events.ReceiveEvents
+namespace AutoStreamDeck.Events.ReceiveEvents
 {
 	public class ReceiveEvent
 	{

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Events.ReceiveEvents
+namespace AutoStreamDeck.Events.ReceiveEvents
 {
 	/// <summary>
 	/// What's the name of the function that we map to?

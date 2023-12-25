@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StreamDeckNet.Actions
+namespace AutoStreamDeck.Actions
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class ActionMetaAttribute : Attribute
