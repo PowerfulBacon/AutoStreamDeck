@@ -95,7 +95,7 @@ Example without settings:
 internal class RandomNumberAction : SDAction
 {
 
-	public override async Task OnKeyDown(string context,KeyDownPayload<RandomNumberSettings> keyDownEvent)
+	public override async Task OnKeyDown(string context,KeyDownPayload<NoSettings> keyDownEvent)
 	{
 		Random random = new Random();
 		await SetTitle(random.Next(1, 7).ToString());
