@@ -56,6 +56,7 @@ namespace AutoStreamDeck.Objects
 		public ContextualEvent(ContextualAction parent, string eventName)
 		{
 			this.parent = parent;
+			
 			// Create the local events
 #if NET8_0
 			LocalEvent = (ReceiveEvent)Activator.CreateInstance(EventTypes[eventName].MakeGenericType(parent.SettingsType))!;

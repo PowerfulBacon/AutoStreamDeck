@@ -30,10 +30,7 @@ namespace AutoStreamDeck.Objects
 #if NET8_0
 		private static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName;
 #else
-		private static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName = ActionTypes.ToDictionary(
-			x => ActionHelpers.MakeStringPath(x.Key.GetCustomAttribute<ActionMetaAttribute>().ActionName),
-			x => (actionType: x.Key, settingsType: x.Value)
-		);
+		private static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName;
 #endif
 
 #if NET8_0
