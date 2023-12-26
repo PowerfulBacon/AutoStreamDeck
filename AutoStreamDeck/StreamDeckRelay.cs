@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
 
 namespace AutoStreamDeck
 {
@@ -32,7 +33,11 @@ namespace AutoStreamDeck
 
 		private static bool HasTerminated = parentProcess.All(x => x.HasExited);
 
+#if NET8_0
 		public static Task WaitForTermination = parentProcess.ForEach(async x => await x.WaitForExitAsync());
+#else
+		public static Task WaitForTermination = Task.Run(() => parentProcess.ForEach(x => x.WaitForExit()));
+#endif
 
 		/// <summary>
 		/// Launch the plugin as a relay program.
@@ -105,10 +110,10 @@ namespace AutoStreamDeck
 				{ }
 				StreamDeck.LogMessage($"Plugin server could not be located, launching plugin server on port {relayServerPort + relayOffset}.");
 				// Things that we need to remember for the server
-				Dictionary<string, string[]> waitingServers = new() {
+				Dictionary<string, string[]> waitingServers = new Dictionary<string, string[]>() {
 					{ relayIdentifier, args }
 				};
-				Dictionary<string, TcpClient> waitingClients = new();
+				Dictionary<string, TcpClient> waitingClients = new Dictionary<string, TcpClient>();
 				// If we got to this point, then we have failed to locate the plugin server. This means that we need to host one ourself.
 				TcpListener pluginServer = new TcpListener(IPAddress.Loopback, relayServerPort + relayOffset);
 				pluginServer.Start();
@@ -141,15 +146,15 @@ namespace AutoStreamDeck
 										}
 										string receivedString = Encoding.ASCII.GetString(byteStream, 0, recievedCount);
 										// Parse the message
-										string[] receivedParts = receivedString.Split(";");
+										string[] receivedParts = receivedString.Split(';');
 										switch (receivedParts[0])
 										{
 											// Broadcast comes from other plugins that want someone to connect to them
 											case "BCST":
-												string relayIdentifier = receivedParts[1];
-												StreamDeck.LogMessage($"Plugin is broadcasting on '{relayIdentifier}'.");
+												string relayTarget = receivedParts[1];
+												StreamDeck.LogMessage($"Plugin is broadcasting on '{relayTarget}'.");
 												// Check if someone is waiting for this relay
-												if (waitingClients.TryGetValue(relayIdentifier, out var waitingClient))
+												if (waitingClients.TryGetValue(relayTarget, out var waitingClient))
 												{
 													if (waitingClient.Connected)
 													{
@@ -159,12 +164,12 @@ namespace AutoStreamDeck
 															await SendString(clientStream, $"CNCT;{string.Join(";", receivedParts.Skip(2))}");
 														}
 													}
-													waitingClients.Remove(relayIdentifier);
+													waitingClients.Remove(relayTarget);
 													await SendString(stream, "RELAY_ACCEPT");
 													return;
 												}
 												// Store information about this relay so that we can give it to whoever wants it.
-												waitingServers.Add(relayIdentifier, receivedParts.Skip(2).ToArray());
+												waitingServers.Add(relayTarget, receivedParts.Skip(2).ToArray());
 												await SendString(stream, "RELAY_ACCEPT");
 												break;
 											// Request comes from the client
@@ -188,7 +193,11 @@ namespace AutoStreamDeck
 							// If the task faults, then log the exception
 							.ContinueWith(task =>
 							{
+#if NET8_0
 								StreamDeck.LogException(task.Exception!);
+#else
+								StreamDeck.LogException(task.Exception);
+#endif
 							}, TaskContinuationOptions.OnlyOnFaulted);
 						}
 						StreamDeck.LogMessage($"Plugin server on port {relayServerPort + relayOffset} shut down.");
@@ -202,7 +211,11 @@ namespace AutoStreamDeck
 				// If the task faults, then log the exception
 				.ContinueWith(task =>
 				{
+#if NET8_0
 					StreamDeck.LogException(task.Exception!);
+#else
+					StreamDeck.LogException(task.Exception);
+#endif
 				}, TaskContinuationOptions.OnlyOnFaulted);
 			}
 			catch (Exception e)
@@ -257,7 +270,7 @@ mainServerLoop:
 								}
 								string receivedString = Encoding.ASCII.GetString(byteStream, 0, recievedCount);
 								// Parse the message
-								string[] receivedParts = receivedString.Split(";");
+								string[] receivedParts = receivedString.Split(';');
 								// Check if that relay exists, if it doesn't then we just need to wait until it comes online
 								// If we do not get a valid response, then this isn't a relay server so check the next port
 								switch (receivedParts[0])
@@ -304,14 +317,18 @@ mainServerLoop:
 			})
 			// If the task faults, then log the exception
 			.ContinueWith(task => {
+#if NET8_0
 				StreamDeck.LogException(task.Exception!);
+#else
+				StreamDeck.LogException(task.Exception);
+#endif
 			}, TaskContinuationOptions.OnlyOnFaulted);
 		}
 
 		private static async Task SendString(NetworkStream stream, string message)
 		{
 			byte[] byteStream = Encoding.ASCII.GetBytes(message);
-			await stream.WriteAsync(byteStream);
+			await stream.WriteAsync(byteStream, 0, byteStream.Length);
 		}
 
 	}

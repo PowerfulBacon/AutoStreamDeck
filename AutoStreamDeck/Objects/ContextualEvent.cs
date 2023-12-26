@@ -18,15 +18,29 @@ namespace AutoStreamDeck.Objects
 		/// <summary>
 		/// Reflected action types
 		/// </summary>
+#if NET8_0
 		internal static Dictionary<string, Type> EventTypes = AppDomain.CurrentDomain.GetAssemblies()
 			.SelectMany(x => x.GetTypes())
 			.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
 			.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>()!.EventName, x => x);
+#else
+		internal static Dictionary<string, Type> EventTypes = AppDomain.CurrentDomain.GetAssemblies()
+			.SelectMany(x => x.GetTypes())
+			.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
+			.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>().EventName, x => x);
+#endif
 
+#if NET8_0
 		internal static Dictionary<string, string> EventMethodNames = AppDomain.CurrentDomain.GetAssemblies()
 			.SelectMany(x => x.GetTypes())
 			.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
 			.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>()!.EventName, x => x.GetCustomAttribute<ReceiveEventFunctionNameAttribute>()!.FunctionName);
+#else
+		internal static Dictionary<string, string> EventMethodNames = AppDomain.CurrentDomain.GetAssemblies()
+			.SelectMany(x => x.GetTypes())
+			.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
+			.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>().EventName, x => x.GetCustomAttribute<ReceiveEventFunctionNameAttribute>().FunctionName);
+#endif
 
 		private ContextualAction parent;
 
@@ -43,21 +57,36 @@ namespace AutoStreamDeck.Objects
 		{
 			this.parent = parent;
 			// Create the local events
+#if NET8_0
 			LocalEvent = (ReceiveEvent)Activator.CreateInstance(EventTypes[eventName].MakeGenericType(parent.SettingsType))!;
 			payloadType = LocalEvent.GetType().BaseType!.GetGenericArguments()[0];
 			linkedMethod = parent.AssignedAction.GetType().GetMethod(EventMethodNames[eventName], BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
 				?? throw new NullReferenceException($"Could not locate the method {EventMethodNames[eventName]} on the type {LocalEvent.GetType().Name}");
+#else
+			LocalEvent = (ReceiveEvent)Activator.CreateInstance(EventTypes[eventName].MakeGenericType(parent.SettingsType));
+			payloadType = LocalEvent.GetType().BaseType.GetGenericArguments()[0];
+			linkedMethod = parent.AssignedAction.GetType().GetMethod(EventMethodNames[eventName], BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+				?? throw new NullReferenceException($"Could not locate the method {EventMethodNames[eventName]} on the type {LocalEvent.GetType().Name}");
+#endif
 		}
 
 		public async Task Raise(JsonNode payload)
 		{
 			// Convert the payload into the correct payload type
+#if NET8_0
 			object? serialisedPayload = JsonSerializer.Deserialize(payload, payloadType);
+#else
+			object serialisedPayload = JsonSerializer.Deserialize(payload, payloadType);
+#endif
 			if (serialisedPayload == null)
 				throw new NullReferenceException($"Could not deserialise the payload {payload.ToJsonString()} to {payloadType.Name}.");
 			StreamDeck.LogMessage($"Attempting to invoke method {payloadType.Name}...");
 			// Invoke the method
+#if NET8_0
 			Task result = (Task)linkedMethod.Invoke(parent.AssignedAction, new object[] { parent.ContextID, serialisedPayload })!;
+#else
+			Task result = (Task)linkedMethod.Invoke(parent.AssignedAction, new object[] { parent.ContextID, serialisedPayload });
+#endif
 			await result;
 			StreamDeck.LogMessage($"Successfully executed payload of type {payloadType.Name}.");
 		}

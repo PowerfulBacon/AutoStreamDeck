@@ -4,6 +4,7 @@ using AutoStreamDeck.Objects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Reflection;
@@ -23,22 +24,34 @@ namespace AutoStreamDeck
 		/// <summary>
 		/// Called when a status message is dispatched.
 		/// </summary>
+#if NET8_0
 		public static event Action<string>? OnStatusMessage;
+#else
+		public static event Action<string> OnStatusMessage;
+#endif
 
 		/// <summary>
 		/// Called when the application has an internal error.
 		/// </summary>
+#if NET8_0
 		public static event Action<Exception>? OnInternalError;
+#else
+		public static event Action<Exception> OnInternalError;
+#endif
 
 		/// <summary>
 		/// Socket that we use to communicate with the stream deck application
 		/// </summary>
+#if NET8_0
 		private static ClientWebSocket? communicationSocket;
+#else
+		private static ClientWebSocket communicationSocket;
+#endif
 
 		/// <summary>
 		/// Dictionary containing all contexts by their UUID
 		/// </summary>
-		private static Dictionary<(string, string), ContextualAction> Contexts = new();
+		private static Dictionary<(string, string), ContextualAction> Contexts = new Dictionary<(string, string), ContextualAction>();
 
 		/// <summary>
 		/// Launch the plugin with the specified arguments from the streamdeck.
@@ -47,10 +60,17 @@ namespace AutoStreamDeck
 		/// <param name="applicationArguments">The argments passed in from the streamdeck</param>
 		public static async Task<Task> LaunchPlugin(string[] applicationArguments)
 		{
+#if NET8_0
 			string? port = null;
 			string? uuid = null;
 			string? registerEvent = null;
 			string? info = null;
+#else
+			string port = null;
+			string uuid = null;
+			string registerEvent = null;
+			string info = null;
+#endif
 			// Parse the application arguments
 			for (int i = 0; i < applicationArguments.Length; i++)
 			{
@@ -72,17 +92,17 @@ namespace AutoStreamDeck
 				throw new ArgumentException("Attempting to launch a streamdeck plugin without the -port or -pluginUUID arguments. This may indicate that the plugin was launched from outside of the stream deck program. " +
 					$"Try installing the created plugin into streamdeck by calling StreamDeckNet.BuildPlugin. The passed arguments were: {string.Join(",", applicationArguments)}");
 			// Initial setup
-			Contexts = new();
+			Contexts = new Dictionary<(string, string), ContextualAction>();
 			// Start connection procedure
 			LogMessage($"Connecting to ws://localhost:{port}...");
 			// Connect to the server
-			Uri communicationUri = new($"ws://localhost:{port}");
-			ClientWebSocket websocket = new();
+			Uri communicationUri = new Uri($"ws://localhost:{port}");
+			ClientWebSocket websocket = new ClientWebSocket();
 			await websocket.ConnectAsync(communicationUri, default);
 			LogMessage($"Connection successful, starting plugin subtask.");
 			// Register the property inspector
-			byte[] registration = Encoding.UTF8.GetBytes(@$"{{""event"":""{registerEvent}"",""uuid"":""{uuid}""}}");
-			await websocket.SendAsync(registration, WebSocketMessageType.Text, true, default);
+			byte[] registration = Encoding.UTF8.GetBytes($@"{{""event"":""{registerEvent}"",""uuid"":""{uuid}""}}");
+			await websocket.SendAsync(new ArraySegment<byte>(registration), WebSocketMessageType.Text, true, default);
 			// Start the listener task
 			return Task.Run(async () => {
 				StringBuilder currentResult = new StringBuilder();
@@ -90,7 +110,7 @@ namespace AutoStreamDeck
 				while (websocket.State == WebSocketState.Open)
 				{
 					var bytes = new byte[1024];
-					var result = await websocket.ReceiveAsync(bytes, default);
+					var result = await websocket.ReceiveAsync(new ArraySegment<byte>(bytes), default);
 					currentResult.Append(Encoding.UTF8.GetString(bytes, 0, result.Count));
 					if (result.EndOfMessage)
 					{
@@ -99,15 +119,26 @@ namespace AutoStreamDeck
 						try
 						{
 							// Get a JSON DOM and parse the message
+#if NET8_0
 							JsonNode? message = JsonNode.Parse(resultText);
+#else
+							JsonNode message = JsonNode.Parse(resultText);
+#endif
 							// No, or invalid, message
 							if (message == null)
 								continue;
 							// Get the action
+#if NET8_0
 							string? action = message["action"]?.GetValue<string>();
 							string? eventName = message["event"]?.GetValue<string>();
 							string? context = message["context"]?.GetValue<string>();
 							JsonNode? payload = message["payload"];
+#else
+							string action = message["action"]?.GetValue<string>();
+							string eventName = message["event"]?.GetValue<string>();
+							string context = message["context"]?.GetValue<string>();
+							JsonNode payload = message["payload"];
+#endif
 							if (context == null || action == null || payload == null || eventName == null)
 								continue;
 							LogMessage($"Handling contextual action ({context}, {action}).");
@@ -163,7 +194,7 @@ namespace AutoStreamDeck
 			string jsonSerialised = JsonSerializer.Serialize(sdEvent);
 			LogMessage($"Dispatching {typeof(TEvent).Name} event...\nPayload: {jsonSerialised}");
 			byte[] registration = Encoding.UTF8.GetBytes(jsonSerialised);
-			await communicationSocket.SendAsync(registration, WebSocketMessageType.Text, true, default);
+			await communicationSocket.SendAsync(new ArraySegment<byte>(registration), WebSocketMessageType.Text, true, default);
 		}
 
 		/// <summary>
@@ -205,16 +236,20 @@ namespace AutoStreamDeck
 		/// Use this when in development mode to add the plugin to the streamdeck's plugin list.
 		/// </summary>
 		/// <param name="streamDeckPath">An optional path to the streamdeck application plugins directory, defaults to C:\Users\%Username%\AppData\Roaming\Elgato\StreamDeck\Plugins</param>
+#if NET8_0
 		public static async Task BuildPlugin(PluginInformation pluginInformation, string? streamDeckPath = null)
+#else
+		public static async Task BuildPlugin(PluginInformation pluginInformation, string streamDeckPath = null)
+#endif
 		{
 			if (streamDeckPath == null)
 				streamDeckPath = $"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\Elgato\\StreamDeck\\Plugins";
-			if (!Path.Exists(streamDeckPath))
+			if (!Directory.Exists(streamDeckPath))
 				throw new FileNotFoundException($"The streamdeck's plugins folder could not be found at '{streamDeckPath}'. If your stream deck plugins are not installed on the C: drive, please manually enter the plugin directory.");
 			// Create the plugin directory
 			string pluginUri = $"com.{ActionHelpers.MakeStringPath(pluginInformation.Author)}.{ActionHelpers.MakeStringPath(pluginInformation.PluginName)}";
 			string pluginPath = $"{streamDeckPath}\\{pluginUri}.sdPlugin";
-			if (!Path.Exists(pluginPath))
+			if (!Directory.Exists(pluginPath))
 				Directory.CreateDirectory(pluginPath);
 			else
 			{
@@ -243,7 +278,11 @@ namespace AutoStreamDeck
 			manifestFile = manifestFile
 				.Replace("%VERSION%", pluginInformation.Version)
 				.Replace("%AUTHOR%", pluginInformation.Author)
-				.Replace("%CODEPATH%", Path.GetFileNameWithoutExtension(Path.GetRelativePath(".", Assembly.GetEntryAssembly()!.Location)))
+#if NET8_0
+				.Replace("%CODEPATH%", Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly()!.Location))
+#else
+				.Replace("%CODEPATH%", Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location))
+#endif
 				.Replace("%DESCRIPTION%", pluginInformation.Description)
 				.Replace("%NAME%", pluginInformation.PluginName)
 				.Replace("%URI%", pluginUri)
@@ -269,13 +308,21 @@ namespace AutoStreamDeck
 		/// </summary>
 		/// <param name="streamDeckApplicationPath">An optional path to the streamdeck application executable. Defaults to C:\Program Files\Elgato\StreamDeck\StreamDeck.exe</param>
 		/// <param name="streamDeckPath">An optional path to the streamdeck application plugins directory, defaults to C:\Users\%Username%\AppData\Roaming\Elgato\StreamDeck\Plugins</param>
+#if NET8_0
 		public static async Task BuildAndReloadPlugin(PluginInformation pluginInformation, string? streamDeckApplicationPath = null, string? streamDeckPlugins = null)
+#else
+		public static async Task BuildAndReloadPlugin(PluginInformation pluginInformation, string streamDeckApplicationPath = null, string streamDeckPlugins = null)
+#endif
 		{
 			// Find and kill the application
 			await Process.GetProcessesByName("StreamDeck")
 				.ForEach(async process => {
 					process.Kill();
+#if NET8_0
 					await process.WaitForExitAsync();
+#else
+					process.WaitForExit();
+#endif
 				});
 			// Wait 2 seconds to allow for the file handler to be cleared
 			await Task.Delay(2000);

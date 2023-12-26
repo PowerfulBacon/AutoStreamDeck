@@ -18,18 +18,32 @@ namespace AutoStreamDeck.Objects
 		/// <summary>
 		/// Reflected action types
 		/// </summary>
+#if NET8_0
 		private static Dictionary<Type, Type> ActionTypes = AppDomain.CurrentDomain.GetAssemblies()
 			.SelectMany(x => x.GetTypes())
 			.Where(x => x.GetCustomAttribute<ActionMetaAttribute>() != null)
 			.ToDictionary(x => x, x => (x.BaseType!.GetGenericArguments().Length > 0 ? x.BaseType!.GetGenericArguments()[0] : typeof(NoSettings)));
+#else
+		private static Dictionary<Type, Type> ActionTypes = AppDomain.CurrentDomain.GetAssemblies()
+			.SelectMany(x => x.GetTypes())
+			.Where(x => x.GetCustomAttribute<ActionMetaAttribute>() != null)
+			.ToDictionary(x => x, x => (x.BaseType.GetGenericArguments().Length > 0 ? x.BaseType.GetGenericArguments()[0] : typeof(NoSettings)));
+#endif
 
 		/// <summary>
 		/// List all the actions by their name
 		/// </summary>
+#if NET8_0
 		internal static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName = ActionTypes.ToDictionary(
 			x => ActionHelpers.MakeStringPath(x.Key.GetCustomAttribute<ActionMetaAttribute>()!.ActionName),
 			x => (actionType: x.Key, settingsType: x.Value)
 		);
+#else
+		internal static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName = ActionTypes.ToDictionary(
+			x => ActionHelpers.MakeStringPath(x.Key.GetCustomAttribute<ActionMetaAttribute>().ActionName),
+			x => (actionType: x.Key, settingsType: x.Value)
+		);
+#endif
 
 		public string ContextID { get; }
 
@@ -75,7 +89,7 @@ namespace AutoStreamDeck.Objects
 			}
 			else
 			{
-				ContextualEvent createdContextualEvent = new(this, eventName);
+				ContextualEvent createdContextualEvent = new ContextualEvent(this, eventName);
 				contextualEvents.Add(eventName, createdContextualEvent);
 				await createdContextualEvent.Raise(payload);
 			}

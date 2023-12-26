@@ -2,10 +2,12 @@
 using AutoStreamDeck.Events;
 using AutoStreamDeck.Events.ReceiveEvents;
 using AutoStreamDeck.Events.SendEvents;
+using AutoStreamDeck.Objects;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +20,11 @@ namespace AutoStreamDeck.Actions
 		/// This will be assigned when we create it via reflection.
 		/// This saves the end-coder having to implement a constructor for every action
 		/// </summary>
+#if NET8_0
 		string Context { get; internal set; }
+#else
+		string Context { get; set; }
+#endif
 	}
 
 	/// <summary>
@@ -35,7 +41,11 @@ namespace AutoStreamDeck.Actions
 		/// This will be assigned when we create it via reflection.
 		/// This saves the end-coder having to implement a constructor for every action
 		/// </summary>
+#if NET8_0
 		public string Context { get; set; } = null!;
+#else
+		public string Context { get; set; } = null;
+#endif
 
 		public async Task SetTitle(string title, Target target = Target.BOTH, int state = 0)
 		{

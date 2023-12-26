@@ -4,21 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System.Linq;
-
-internal static class LinqExtensions
+namespace System.Linq
 {
 
-	public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+	internal static class LinqExtensions
 	{
-		foreach (T thing in source)
-			action(thing);
-	}
 
-	public static async Task ForEach<T>(this IEnumerable<T> source, Func<T, Task> action)
-	{
-		foreach (T thing in source)
-			await action(thing);
-	}
+		public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+		{
+			foreach (T thing in source)
+				action(thing);
+		}
 
+		public static async Task ForEach<T>(this IEnumerable<T> source, Func<T, Task> action)
+		{
+			foreach (T thing in source)
+				await action(thing);
+		}
+
+	}
 }

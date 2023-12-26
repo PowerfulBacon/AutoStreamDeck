@@ -13,7 +13,11 @@ namespace AutoStreamDeck.Objects
 
 		public string PluginName { get; set; } = Assembly.GetExecutingAssembly().GetName().Name ?? "ExamplePlugin";
 
+#if NET8_0
 		public string? Description { get; set; } = null;
+#else
+		public string Description { get; set; } = null;
+#endif
 
 		public string Author { get; set; } = "DefaultAuthor";
 

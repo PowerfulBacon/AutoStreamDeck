@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Title>AutoStreamDeck</Title>
     <Description>An API and framework for automatically generating plugins for the StreamDeck in C#, as well as handling integrating external applications with the stream-deck application.</Description>
     <Copyright>MIT LIcensed</Copyright>
@@ -17,6 +16,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(framework)' == 'NET8_0'">
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\readme.md">
       <Pack>True</Pack>
@@ -26,6 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
