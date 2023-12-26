@@ -95,7 +95,7 @@ Example without settings:
 internal class RandomNumberAction : SDAction
 {
 
-	public override async Task OnKeyDown(string context,KeyDownPayload<RandomNumberSettings> keyDownEvent)
+	public override async Task OnKeyDown(string context,KeyDownPayload<NoSettings> keyDownEvent)
 	{
 		Random random = new Random();
 		await SetTitle(random.Next(1, 7).ToString());
@@ -106,5 +106,6 @@ internal class RandomNumberAction : SDAction
 
 ## Future Work
 
-- Mac support
+- Icon Support
 - Completion of the API (https://docs.elgato.com/sdk/plugins/events-received and https://docs.elgato.com/sdk/plugins/events-sent)
+- Mac support
