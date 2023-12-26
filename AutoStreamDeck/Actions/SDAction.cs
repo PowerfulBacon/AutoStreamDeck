@@ -4,6 +4,8 @@ using AutoStreamDeck.Events.ReceiveEvents;
 using AutoStreamDeck.Events.SendEvents;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,6 +40,15 @@ namespace AutoStreamDeck.Actions
 		public async Task SetTitle(string title, Target target = Target.BOTH, int state = 0)
 		{
 			await StreamDeck.DispatchEvent(new SetTitleEvent(this, new SetTitlePayload(title, target, state)));
+		}
+
+		public async Task SetImage(Bitmap bitmapImage, Target target = Target.BOTH, int state = 0)
+		{
+			using (MemoryStream m = new MemoryStream())
+			{
+				bitmapImage.Save(m, ImageFormat.Png);
+				await StreamDeck.DispatchEvent(new SetImageEvent(this, new SetImagePayload($"data:image/png;base64,{Convert.ToBase64String(m.ToArray(), Base64FormattingOptions.None)}", target, state)));
+			}
 		}
 
 		public virtual Task OnKeyDown(string context, KeyDownPayload<TSettings> keyDownEvent) => Task.CompletedTask;
