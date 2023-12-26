@@ -107,7 +107,7 @@ internal class RandomNumberAction : SDAction
 You can also store variables inside an action, these will be local per-button.
 If an action is deleted and then re-created in the same position, the variable state will be maintained.
 
-```
+```cs
 [ActionMeta("Counter", Description = "A very basic counter.")]
 internal class RandomNumberAction : SDAction
 {
