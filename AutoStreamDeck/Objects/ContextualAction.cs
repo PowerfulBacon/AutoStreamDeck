@@ -86,15 +86,16 @@ namespace AutoStreamDeck.Objects
 		/// </summary>
 		public Dictionary<string, ContextualEvent> contextualEvents = new Dictionary<string, ContextualEvent>();
 
-		public ContextualAction(string contextID, string actionID)
+		public ContextualAction(string contextID, string actionID, Assembly[] additionalAssemblies)
 		{
 			ContextID = contextID;
 			ActionID = actionID;
 			// Determine the settings type
 			string actionName = actionID.Substring(actionID.LastIndexOf(".") + 1);
-			SettingsType = ActionsByName[actionName].settingsType;
+			var actions = GetActionsByName(additionalAssemblies);
+			SettingsType = actions[actionName].settingsType;
 			// Create and set the ISDAction
-			AssignedAction = (ISDAction)(Activator.CreateInstance(ActionsByName[actionName].actionType) ?? throw new NullReferenceException($"Could not create an instance of {ActionsByName[actionName].actionType.Name}"));
+			AssignedAction = (ISDAction)(Activator.CreateInstance(actions[actionName].actionType) ?? throw new NullReferenceException($"Could not create an instance of {actions[actionName].actionType.Name}"));
 			AssignedAction.Context = contextID;
 		}
 

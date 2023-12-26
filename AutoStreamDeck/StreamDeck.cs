@@ -58,7 +58,11 @@ namespace AutoStreamDeck
 		/// </summary>
 		/// <return>Returns the task that manages the receving and dispatching of stream-deck actions.</return>
 		/// <param name="applicationArguments">The argments passed in from the streamdeck</param>
-		public static async Task<Task> LaunchPlugin(string[] applicationArguments)
+#if NET8_0
+		public static async Task<Task> LaunchPlugin(string[] applicationArguments, Assembly[]? additionalAssemblies = null)
+#else
+		public static async Task<Task> LaunchPlugin(string[] applicationArguments, Assembly[] additionalAssemblies = null)
+#endif
 		{
 #if NET8_0
 			string? port = null;
@@ -143,7 +147,7 @@ namespace AutoStreamDeck
 								continue;
 							LogMessage($"Handling contextual action ({context}, {action}).");
 							// Handle the event
-							ContextualAction locatedContext = CreateOrGetContextualAction(context, action);
+							ContextualAction locatedContext = CreateOrGetContextualAction(context, action, additionalAssemblies);
 							await locatedContext.HandleEvent(eventName, payload);
 						}
 						catch (Exception e)
@@ -168,13 +172,13 @@ namespace AutoStreamDeck
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		private static ContextualAction CreateOrGetContextualAction(string context, string action)
+		private static ContextualAction CreateOrGetContextualAction(string context, string action, Assembly[] additionalAssemblies)
 		{
 			// Return the cached context
 			if (Contexts.TryGetValue((context, action), out var val))
 				return val;
 			// Create a new context
-			ContextualAction createdContext = new ContextualAction(context, action);
+			ContextualAction createdContext = new ContextualAction(context, action, additionalAssemblies);
 			Contexts.Add((context, action), createdContext);
 			return createdContext;
 		}
