@@ -104,6 +104,25 @@ internal class RandomNumberAction : SDAction
 }
 ```
 
+You can also store variables inside an action, these will be local per-button.
+If an action is deleted and then re-created in the same position, the variable state will be maintained.
+
+```cs
+[ActionMeta("Counter", Description = "A very basic counter.")]
+internal class RandomNumberAction : SDAction
+{
+
+	public int timesPressed = 0;
+
+	public override async Task OnKeyDown(string context, KeyDownPayload<NoSettings> keyDownEvent)
+	{
+		timesPressed ++;
+		await SetTitle(timesPressed.ToString());
+	}
+
+}
+```
+
 ## External Application Integration
 
 (Terminology Note: External-application may also be a plugin for an external-application).
