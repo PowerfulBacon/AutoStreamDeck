@@ -106,5 +106,6 @@ internal class RandomNumberAction : SDAction
 
 ## Future Work
 
-- Mac support
+- Icon Support
 - Completion of the API (https://docs.elgato.com/sdk/plugins/events-received and https://docs.elgato.com/sdk/plugins/events-sent)
+- Mac support
