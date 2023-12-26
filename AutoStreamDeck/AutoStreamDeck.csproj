@@ -14,6 +14,7 @@
     <PackageTags>streamdeck;streamdecksdk;streamdeck-sdk;streamdeck-tools;streamdeck-plugin;streamdeck-api;streamdeck-plugins;integration;generation;automated</PackageTags>
     <AssemblyVersion></AssemblyVersion>
     <Authors>PowerfulBacon</Authors>
+    <PackageLicenseExpression>mit</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
