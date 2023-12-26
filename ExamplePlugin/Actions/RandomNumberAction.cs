@@ -26,4 +26,16 @@ namespace ExamplePlugin.Actions
 		public int Minimum = 1;
 		public int Maximum = 6;
 	}
+
+	[ActionMeta("Fixed Random Number", Description = "Generates a random number and sets the title of the button to the number.")]
+	internal class RandomNumberFixedAction : SDAction
+	{
+
+		public override async Task OnKeyDown(string context, KeyDownPayload<NoSettings> keyDownEvent)
+		{
+			Random random = new Random();
+			await SetTitle(random.Next(1, 7).ToString());
+		}
+
+	}
 }

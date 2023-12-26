@@ -21,7 +21,7 @@ namespace AutoStreamDeck.Objects
 		private static Dictionary<Type, Type> ActionTypes = AppDomain.CurrentDomain.GetAssemblies()
 			.SelectMany(x => x.GetTypes())
 			.Where(x => x.GetCustomAttribute<ActionMetaAttribute>() != null)
-			.ToDictionary(x => x, x => x.BaseType!.GetGenericArguments()[0]);
+			.ToDictionary(x => x, x => (x.BaseType!.GetGenericArguments().Length > 0 ? x.BaseType!.GetGenericArguments()[0] : typeof(NoSettings)));
 
 		/// <summary>
 		/// List all the actions by their name
