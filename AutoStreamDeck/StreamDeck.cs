@@ -237,9 +237,9 @@ namespace AutoStreamDeck
 		/// </summary>
 		/// <param name="streamDeckPath">An optional path to the streamdeck application plugins directory, defaults to C:\Users\%Username%\AppData\Roaming\Elgato\StreamDeck\Plugins</param>
 #if NET8_0
-		public static async Task BuildPlugin(PluginInformation pluginInformation, string? streamDeckPath = null)
+		public static async Task BuildPlugin(PluginInformation pluginInformation, Assembly[]? additionalActionProvidingAssemblies = null, string? streamDeckPath = null)
 #else
-		public static async Task BuildPlugin(PluginInformation pluginInformation, string streamDeckPath = null)
+		public static async Task BuildPlugin(PluginInformation pluginInformation, Assembly[] additionalActionProvidingAssemblies = null, string streamDeckPath = null)
 #endif
 		{
 			if (streamDeckPath == null)
@@ -294,7 +294,7 @@ namespace AutoStreamDeck
 				.Replace("%DESCRIPTION%", pluginInformation.Description)
 				.Replace("%NAME%", pluginInformation.PluginName)
 				.Replace("%URI%", pluginUri)
-				.Replace("%ACTIONS%", string.Join(",\n", ContextualAction.ActionsByName
+				.Replace("%ACTIONS%", string.Join(",\n", ContextualAction.GetActionsByName(additionalActionProvidingAssemblies)
 					.Select(action => {
 						return actionTemplate
 							.Replace("%URI%", pluginUri)
@@ -317,9 +317,9 @@ namespace AutoStreamDeck
 		/// <param name="streamDeckApplicationPath">An optional path to the streamdeck application executable. Defaults to C:\Program Files\Elgato\StreamDeck\StreamDeck.exe</param>
 		/// <param name="streamDeckPath">An optional path to the streamdeck application plugins directory, defaults to C:\Users\%Username%\AppData\Roaming\Elgato\StreamDeck\Plugins</param>
 #if NET8_0
-		public static async Task BuildAndReloadPlugin(PluginInformation pluginInformation, string? streamDeckApplicationPath = null, string? streamDeckPlugins = null)
+		public static async Task BuildAndReloadPlugin(PluginInformation pluginInformation, Assembly[]? additionalActionProvidingAssemblies = null, string? streamDeckApplicationPath = null, string? streamDeckPlugins = null)
 #else
-		public static async Task BuildAndReloadPlugin(PluginInformation pluginInformation, string streamDeckApplicationPath = null, string streamDeckPlugins = null)
+		public static async Task BuildAndReloadPlugin(PluginInformation pluginInformation, Assembly[] additionalActionProvidingAssemblies = null, string streamDeckApplicationPath = null, string streamDeckPlugins = null)
 #endif
 		{
 			// Find and kill the application
@@ -335,7 +335,7 @@ namespace AutoStreamDeck
 			// Wait 2 seconds to allow for the file handler to be cleared
 			await Task.Delay(2000);
 			// Build the plugin
-			await BuildPlugin(pluginInformation, streamDeckPlugins);
+			await BuildPlugin(pluginInformation, additionalActionProvidingAssemblies, streamDeckPlugins);
 			// Launch the streamdeck application
 			Process.Start(streamDeckApplicationPath ?? "C:\\Program Files\\Elgato\\StreamDeck\\StreamDeck.exe");
 		}
