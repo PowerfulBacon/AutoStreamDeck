@@ -104,6 +104,53 @@ internal class RandomNumberAction : SDAction
 }
 ```
 
+## External Application Integration
+
+(Terminology Note: External-application may also be a plugin for an external-application).
+
+With this plugin you can directly connect the stream deck application with a plugin an external application, such as Unity.
+Doing this requires going through a relay plugin.
+
+Process:
+1. The stream-deck launches the relay plugin with a specified identifier.
+2. The external application connects to the background relay with the same identifier.
+3. The stream-deck plugin sends the port number of the web-socket to the external application.
+4. The external application connects directly to the stream-deck application.
+5. The external application disconnects from the relay plugin's server.
+
+To achieve this in-code, both a stream-deck plugin and the external application need to interface with the library.
+
+**All of the SDActions need to be in the external application and the stream-deck plugin, it is recommended that the SDActions are placed in a shared project that both the plugin and the external application can have as references.**
+You may also have the external application and stream-deck plugin be launched from the same executable by checkinng the command line arguments passed and calling `StreamDeckRelay.ConnectToBackgroundRelay` or `StreamDeckRelay.LaunchRelayPlugin` accordingly.
+
+### External Application
+
+Next, have the external application connect to the stream-deck in the background.
+This process cannot be awaited and will run in the background.
+This process may not instantly connect to a stream-deck, if there is no stream-deck running then the process will attempt to connect every 5 seconds while the external application is running.
+
+```cs
+StreamDeckRelay.ConnectToBackgroundRelay(unique_id);
+```
+
+Once this has connected, the stream-deck actions may be invoked by the stream-deck which you can setup to trigger behaviours in your external application.
+For example, an action could be created which calls some debug code in a Unity game.
+
+### Stream Deck Plugin
+
+The stream-deck plugin is responsible for telling the external application how to connect to the stream-deck. This application also needs to be aware of all SDActions because they are collected via reflection to build the manifest file.
+
+The relay-plugin should have the following code, which will launch the relay server and allow an external application to connect.
+
+```cs
+// The plugin should connect to, or launch, a relay server so that it can communicate with the external application.
+Task relayServerTask = await StreamDeckRelay.LaunchRelayPlugin(unique_id, args);
+// Wait for the stream-deck application to be terminated, as the stream-deck application will automatically restart any plugins that terminate.
+await StreamDeckRelay.WaitForTermination;
+```
+
+Note that if multiple plugins are using the relay server, they will cooperate and share a single relay-server.
+
 ## Future Work
 
 - Completion of the API (https://docs.elgato.com/sdk/plugins/events-received and https://docs.elgato.com/sdk/plugins/events-sent)
