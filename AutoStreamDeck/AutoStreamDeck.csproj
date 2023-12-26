@@ -4,7 +4,24 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>AutoStreamDeck</Title>
+    <Description>An API and framework for automatically generating plugins for the StreamDeck in C#, as well as handling integrating external applications with the stream-deck application.</Description>
+    <Copyright>MIT LIcensed</Copyright>
+    <PackageProjectUrl>https://github.com/PowerfulBacon/AutoStreamDeck</PackageProjectUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/PowerfulBacon/AutoStreamDeck</RepositoryUrl>
+    <RepositoryType>got</RepositoryType>
+    <PackageTags>streamdeck;streamdecksdk;streamdeck-sdk;streamdeck-tools;streamdeck-plugin;streamdeck-api;streamdeck-plugins;integration;generation;automated</PackageTags>
+    <AssemblyVersion></AssemblyVersion>
+    <Authors>PowerfulBacon</Authors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
