@@ -11,6 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Templates\action.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Templates\manifest.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

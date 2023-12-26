@@ -1,0 +1,13 @@
+    {
+      "Icon": "actions/globalStats/assets/actionimage",
+      "Name": "%NAME%",
+      "Controllers": [ "Keypad" ],
+      "States": [
+        {
+          "Image": "actions/globalStats/assets/action"
+        }
+      ],
+      "Tooltip": "This is an example tooltip",
+      "UUID": "%URI%.%UUID%",
+      "PropertyInspectorPath": "actions/globalStats/property-inspector/inspector.html"
+    }

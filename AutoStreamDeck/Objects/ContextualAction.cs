@@ -26,8 +26,8 @@ namespace AutoStreamDeck.Objects
 		/// <summary>
 		/// List all the actions by their name
 		/// </summary>
-		private static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName = ActionTypes.ToDictionary(
-			x => ActionHelpers.ActionNameToURI(x.Key.GetCustomAttribute<ActionMetaAttribute>()!.ActionName),
+		internal static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName = ActionTypes.ToDictionary(
+			x => ActionHelpers.MakeStringPath(x.Key.GetCustomAttribute<ActionMetaAttribute>()!.ActionName),
 			x => (actionType: x.Key, settingsType: x.Value)
 		);
 
@@ -52,9 +52,10 @@ namespace AutoStreamDeck.Objects
 			ContextID = contextID;
 			ActionID = actionID;
 			// Determine the settings type
-			SettingsType = ActionsByName[actionID].settingsType;
+			string actionName = actionID.Substring(actionID.LastIndexOf(".") + 1);
+			SettingsType = ActionsByName[actionName].settingsType;
 			// Create and set the ISDAction
-			AssignedAction = (ISDAction)(Activator.CreateInstance(ActionsByName[actionID].actionType) ?? throw new NullReferenceException($"Could not create an instance of {ActionsByName[actionID].actionType.Name}"));
+			AssignedAction = (ISDAction)(Activator.CreateInstance(ActionsByName[actionName].actionType) ?? throw new NullReferenceException($"Could not create an instance of {ActionsByName[actionName].actionType.Name}"));
 			AssignedAction.Context = contextID;
 		}
 

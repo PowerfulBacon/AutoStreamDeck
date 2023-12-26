@@ -1,10 +1,12 @@
 ﻿using AutoStreamDeck.Events.SendEvents;
+using AutoStreamDeck.Extensions;
 using AutoStreamDeck.Objects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -17,10 +19,6 @@ namespace AutoStreamDeck
     /// </summary>
     public static class StreamDeck
 	{
-
-		public static string PluginAuthor { get; } = "powerfulbacon";
-
-		public static string PluginName { get; } = "csplugin";
 
 		/// <summary>
 		/// Called when a status message is dispatched.
@@ -207,14 +205,15 @@ namespace AutoStreamDeck
 		/// Use this when in development mode to add the plugin to the streamdeck's plugin list.
 		/// </summary>
 		/// <param name="streamDeckPath">An optional path to the streamdeck application plugins directory, defaults to C:\Users\%Username%\AppData\Roaming\Elgato\StreamDeck\Plugins</param>
-		public static async Task BuildPlugin(string? streamDeckPath = null)
+		public static async Task BuildPlugin(PluginInformation pluginInformation, string? streamDeckPath = null)
 		{
 			if (streamDeckPath == null)
 				streamDeckPath = $"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\Elgato\\StreamDeck\\Plugins";
 			if (!Path.Exists(streamDeckPath))
 				throw new FileNotFoundException($"The streamdeck's plugins folder could not be found at '{streamDeckPath}'. If your stream deck plugins are not installed on the C: drive, please manually enter the plugin directory.");
 			// Create the plugin directory
-			string pluginPath = $"{streamDeckPath}\\com.powerfulbacon.csplugin.sdPlugin";
+			string pluginUri = $"com.{ActionHelpers.MakeStringPath(pluginInformation.Author)}.{ActionHelpers.MakeStringPath(pluginInformation.PluginName)}";
+			string pluginPath = $"{streamDeckPath}\\{pluginUri}.sdPlugin";
 			if (!Path.Exists(pluginPath))
 				Directory.CreateDirectory(pluginPath);
 			else
@@ -239,7 +238,22 @@ namespace AutoStreamDeck
 			}
 			// Get all of the variables we need to build the manifest
 			string manifestFile = File.ReadAllText("Templates/manifest.json");
+			string actionTemplate = File.ReadAllText("Templates/action.json");
 			// Perform necessary replacements
+			manifestFile = manifestFile
+				.Replace("%VERSION%", pluginInformation.Version)
+				.Replace("%AUTHOR%", pluginInformation.Author)
+				.Replace("%CODEPATH%", Path.GetFileNameWithoutExtension(Path.GetRelativePath(".", Assembly.GetEntryAssembly()!.Location)))
+				.Replace("%DESCRIPTION%", pluginInformation.Description)
+				.Replace("%NAME%", pluginInformation.PluginName)
+				.Replace("%URI%", pluginUri)
+				.Replace("%ACTIONS%", string.Join(",\n", ContextualAction.ActionsByName
+					.Select(action => {
+						return actionTemplate
+							.Replace("%URI%", pluginUri)
+							.Replace("%NAME%", action.Key)
+							.Replace("%UUID%", action.Key);
+					})));
 			// Inject the manifest file into the C# directory
 			File.WriteAllText($"{pluginPath}\\manifest.json", manifestFile);
 			// Copy the application across
@@ -255,7 +269,7 @@ namespace AutoStreamDeck
 		/// </summary>
 		/// <param name="streamDeckApplicationPath">An optional path to the streamdeck application executable. Defaults to C:\Program Files\Elgato\StreamDeck\StreamDeck.exe</param>
 		/// <param name="streamDeckPath">An optional path to the streamdeck application plugins directory, defaults to C:\Users\%Username%\AppData\Roaming\Elgato\StreamDeck\Plugins</param>
-		public static async Task BuildAndReloadPlugin(string? streamDeckApplicationPath = null, string? streamDeckPlugins = null)
+		public static async Task BuildAndReloadPlugin(PluginInformation pluginInformation, string? streamDeckApplicationPath = null, string? streamDeckPlugins = null)
 		{
 			// Find and kill the application
 			await Process.GetProcessesByName("StreamDeck")
@@ -266,7 +280,7 @@ namespace AutoStreamDeck
 			// Wait 2 seconds to allow for the file handler to be cleared
 			await Task.Delay(2000);
 			// Build the plugin
-			await BuildPlugin(streamDeckPlugins);
+			await BuildPlugin(pluginInformation, streamDeckPlugins);
 			// Launch the streamdeck application
 			Process.Start(streamDeckApplicationPath ?? "C:\\Program Files\\Elgato\\StreamDeck\\StreamDeck.exe");
 		}

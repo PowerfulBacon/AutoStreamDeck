@@ -12,10 +12,7 @@ namespace AutoStreamDeck.Extensions
 
 		private static Regex invalidCharacterCleaner = new Regex("[^a-zA-Z]", RegexOptions.Compiled);
 
-		public static string ActionNameToURI(string actionName)
-		{
-			return $"com.{StreamDeck.PluginAuthor}.{StreamDeck.PluginName}.{invalidCharacterCleaner.Replace(actionName, "").ToLower()}";
-		}
+		public static string MakeStringPath(string value) => invalidCharacterCleaner.Replace(value, "").ToLower();
 
 	}
 }

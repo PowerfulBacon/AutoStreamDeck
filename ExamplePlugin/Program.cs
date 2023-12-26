@@ -5,7 +5,11 @@ using System.Diagnostics;
 // If the debugger is attached, then build the plugin and load it with streamdeck instead.
 if (Debugger.IsAttached)
 {
-	await StreamDeck.BuildAndReloadPlugin();
+	await StreamDeck.BuildAndReloadPlugin(new AutoStreamDeck.Objects.PluginInformation() {
+		Author = "PowerfulBacon",
+		PluginName = "Example Plugin",
+		Description = "An example plugin to show off the capabilities of AutoStreamDeck."
+	});
 	return;
 }
 
