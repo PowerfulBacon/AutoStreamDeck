@@ -1,4 +1,4 @@
-# StreamDeckNet
+# AutoStreamDeck
 
 **Custom streamdeck plugins made easy.**
 A framework for automatically generating plugins for the StreamDeck.
