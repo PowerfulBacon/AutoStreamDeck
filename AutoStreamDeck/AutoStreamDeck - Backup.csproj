@@ -14,17 +14,12 @@
     <AssemblyVersion></AssemblyVersion>
     <Authors>PowerfulBacon</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>2.0.1</Version>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(framework)' == 'NET8_0'">
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\action.json" />
-    <EmbeddedResource Include="Templates\manifest.json" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\readme.md">
@@ -36,6 +31,15 @@
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Templates\action.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Templates\manifest.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

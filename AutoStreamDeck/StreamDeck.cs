@@ -272,8 +272,16 @@ namespace AutoStreamDeck
 				}
 			}
 			// Get all of the variables we need to build the manifest
-			string manifestFile = File.ReadAllText("Templates/manifest.json");
-			string actionTemplate = File.ReadAllText("Templates/action.json");
+			string manifestFile;
+			string actionTemplate;
+			using (StreamReader manifestReader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.EndsWith("manifest.json")).First())))
+			{
+				manifestFile = manifestReader.ReadToEnd();
+			}
+			using (StreamReader actionReader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.EndsWith("action.json")).First())))
+			{
+				actionTemplate = actionReader.ReadToEnd();
+			}
 			// Perform necessary replacements
 			manifestFile = manifestFile
 				.Replace("%VERSION%", pluginInformation.Version)
