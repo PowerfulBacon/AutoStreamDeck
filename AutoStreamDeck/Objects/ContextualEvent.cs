@@ -15,32 +15,38 @@ namespace AutoStreamDeck.Objects
 	internal class ContextualEvent
 	{
 
+		private static Dictionary<string, Type> _eventTypeCache;
+		private static Dictionary<string, string> _eventMethodCache;
+
 		/// <summary>
 		/// Reflected action types
 		/// </summary>
-#if NET8_0
-		internal static Dictionary<string, Type> EventTypes = AppDomain.CurrentDomain.GetAssemblies()
-			.SelectMany(x => x.GetTypes())
-			.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
-			.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>()!.EventName, x => x);
-#else
-		internal static Dictionary<string, Type> EventTypes = AppDomain.CurrentDomain.GetAssemblies()
-			.SelectMany(x => x.GetTypes())
-			.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
-			.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>().EventName, x => x);
-#endif
+		internal static Dictionary<string, Type> EventTypes
+		{
+			get {
+				if (_eventTypeCache != null)
+					return _eventTypeCache;
+				_eventTypeCache = ReflectionHelpers.ReflectedAssemblies
+					.SelectMany(x => x.GetTypes())
+					.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
+					.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>().EventName, x => x);
+				return _eventTypeCache;
+			}
+		}
 
-#if NET8_0
-		internal static Dictionary<string, string> EventMethodNames = AppDomain.CurrentDomain.GetAssemblies()
-			.SelectMany(x => x.GetTypes())
-			.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
-			.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>()!.EventName, x => x.GetCustomAttribute<ReceiveEventFunctionNameAttribute>()!.FunctionName);
-#else
-		internal static Dictionary<string, string> EventMethodNames = AppDomain.CurrentDomain.GetAssemblies()
-			.SelectMany(x => x.GetTypes())
-			.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
-			.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>().EventName, x => x.GetCustomAttribute<ReceiveEventFunctionNameAttribute>().FunctionName);
-#endif
+		internal static Dictionary<string, string> EventMethodNames
+		{
+			get
+			{
+				if (_eventMethodCache != null)
+					return _eventMethodCache;
+				_eventMethodCache = ReflectionHelpers.ReflectedAssemblies
+					.SelectMany(x => x.GetTypes())
+					.Where(x => x.GetCustomAttribute<ReceiveEventNameAttribute>() != null)
+					.ToDictionary(x => x.GetCustomAttribute<ReceiveEventNameAttribute>().EventName, x => x.GetCustomAttribute<ReceiveEventFunctionNameAttribute>().FunctionName);
+				return _eventMethodCache;
+			}
+		}
 
 		private ContextualAction parent;
 

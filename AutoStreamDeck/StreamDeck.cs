@@ -51,7 +51,7 @@ namespace AutoStreamDeck
 		/// <summary>
 		/// Dictionary containing all contexts by their UUID
 		/// </summary>
-		private static Dictionary<(string, string), ContextualAction> Contexts = new Dictionary<(string, string), ContextualAction>();
+		private static Dictionary<Tuple<string, string>, ContextualAction> Contexts = new Dictionary<Tuple<string, string>, ContextualAction>();
 
 		/// <summary>
 		/// Launch the plugin with the specified arguments from the streamdeck.
@@ -64,16 +64,15 @@ namespace AutoStreamDeck
 		public static async Task<Task> LaunchPlugin(string[] applicationArguments, Assembly[] additionalAssemblies = null)
 #endif
 		{
+			ReflectionHelpers.LoadAdditionalAssemblies(additionalAssemblies);
 #if NET8_0
 			string? port = null;
 			string? uuid = null;
 			string? registerEvent = null;
-			string? info = null;
 #else
 			string port = null;
 			string uuid = null;
 			string registerEvent = null;
-			string info = null;
 #endif
 			// Parse the application arguments
 			for (int i = 0; i < applicationArguments.Length; i++)
@@ -96,7 +95,7 @@ namespace AutoStreamDeck
 				throw new ArgumentException("Attempting to launch a streamdeck plugin without the -port or -pluginUUID arguments. This may indicate that the plugin was launched from outside of the stream deck program. " +
 					$"Try installing the created plugin into streamdeck by calling StreamDeckNet.BuildPlugin. The passed arguments were: {string.Join(",", applicationArguments)}");
 			// Initial setup
-			Contexts = new Dictionary<(string, string), ContextualAction>();
+			Contexts = new Dictionary<Tuple<string, string>, ContextualAction>();
 			// Start connection procedure
 			LogMessage($"Connecting to ws://localhost:{port}...");
 			// Connect to the server
@@ -147,7 +146,7 @@ namespace AutoStreamDeck
 								continue;
 							LogMessage($"Handling contextual action ({context}, {action}).");
 							// Handle the event
-							ContextualAction locatedContext = CreateOrGetContextualAction(context, action, additionalAssemblies);
+							ContextualAction locatedContext = CreateOrGetContextualAction(context, action);
 							await locatedContext.HandleEvent(eventName, payload);
 						}
 						catch (Exception e)
@@ -172,14 +171,14 @@ namespace AutoStreamDeck
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		private static ContextualAction CreateOrGetContextualAction(string context, string action, Assembly[] additionalAssemblies)
+		private static ContextualAction CreateOrGetContextualAction(string context, string action)
 		{
 			// Return the cached context
-			if (Contexts.TryGetValue((context, action), out var val))
+			if (Contexts.TryGetValue(new Tuple<string, string>(context, action), out var val))
 				return val;
 			// Create a new context
-			ContextualAction createdContext = new ContextualAction(context, action, additionalAssemblies);
-			Contexts.Add((context, action), createdContext);
+			ContextualAction createdContext = new ContextualAction(context, action);
+			Contexts.Add(new Tuple<string, string>(context, action), createdContext);
 			return createdContext;
 		}
 
@@ -246,6 +245,7 @@ namespace AutoStreamDeck
 		public static async Task BuildPlugin(PluginInformation pluginInformation, Assembly[] additionalActionProvidingAssemblies = null, string streamDeckPath = null)
 #endif
 		{
+			ReflectionHelpers.LoadAdditionalAssemblies(additionalActionProvidingAssemblies);
 			if (streamDeckPath == null)
 				streamDeckPath = $"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\Elgato\\StreamDeck\\Plugins";
 			if (!Directory.Exists(streamDeckPath))
@@ -298,13 +298,14 @@ namespace AutoStreamDeck
 				.Replace("%DESCRIPTION%", pluginInformation.Description)
 				.Replace("%NAME%", pluginInformation.PluginName)
 				.Replace("%URI%", pluginUri)
-				.Replace("%ACTIONS%", string.Join(",\n", ContextualAction.GetActionsByName(additionalActionProvidingAssemblies)
+				.Replace("%ACTIONS%", string.Join(",\n", ContextualAction.GetActionsByName()
 					.Select(action => {
 						return actionTemplate
 							.Replace("%URI%", pluginUri)
 							.Replace("%NAME%", action.Key)
 							.Replace("%UUID%", action.Key);
 					})));
+			Console.WriteLine($"Successfully created plugin with {ContextualAction.GetActionsByName().Count} actions.");
 			// Inject the manifest file into the C# directory
 			File.WriteAllText($"{pluginPath}\\manifest.json", manifestFile);
 			// Copy the application across

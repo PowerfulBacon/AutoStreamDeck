@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoStreamDeck", "AutoStrea
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamplePlugin", "..\ExamplePlugin\ExamplePlugin.csproj", "{90570A05-FD19-4678-9D65-E4CD63860839}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamplePluginNetFramework", "..\ExamplePluginNetFramework\ExamplePluginNetFramework.csproj", "{0FE642B8-660C-4AD8-9E94-FFA49A804596}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{90570A05-FD19-4678-9D65-E4CD63860839}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90570A05-FD19-4678-9D65-E4CD63860839}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90570A05-FD19-4678-9D65-E4CD63860839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FE642B8-660C-4AD8-9E94-FFA49A804596}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FE642B8-660C-4AD8-9E94-FFA49A804596}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FE642B8-660C-4AD8-9E94-FFA49A804596}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FE642B8-660C-4AD8-9E94-FFA49A804596}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

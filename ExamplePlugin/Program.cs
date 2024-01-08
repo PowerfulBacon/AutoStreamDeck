@@ -2,6 +2,11 @@
 using AutoStreamDeck;
 using System.Diagnostics;
 
+// Setup logging to a file
+File.WriteAllText("log.txt", "");
+StreamDeck.OnStatusMessage += msg => File.AppendAllText("log.txt", $"{msg}\n");
+StreamDeck.OnInternalError += e => File.AppendAllText("log.txt", $"{e.ToString()}\n");
+
 // If the debugger is attached, then build the plugin and load it with streamdeck instead.
 if (Debugger.IsAttached)
 {
@@ -12,11 +17,6 @@ if (Debugger.IsAttached)
 	});
 	return;
 }
-
-// Setup logging to a file
-File.WriteAllText("log.txt", "");
-StreamDeck.OnStatusMessage += msg => File.AppendAllText("log.txt", $"{msg}\n");
-StreamDeck.OnInternalError += e => File.AppendAllText("log.txt", $"{e.ToString()}\n");
 
 try
 {

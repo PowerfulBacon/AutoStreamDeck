@@ -30,44 +30,48 @@ namespace AutoStreamDeck.Objects
 #if NET8_0
 		private static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName;
 #else
-		private static Dictionary<string, (Type actionType, Type settingsType)> ActionsByName;
+		private static Dictionary<string, Tuple<Type, Type>> ActionsByName;
 #endif
 
 #if NET8_0
-		internal static Dictionary<string, (Type actionType, Type settingsType)> GetActionsByName(Assembly[]? additionalAssemblies)
-#else
-		internal static Dictionary<string, (Type actionType, Type settingsType)> GetActionsByName(Assembly[] additionalAssemblies)
-#endif
+		internal static Dictionary<string, (Type actionType, Type settingsType)> GetActionsByName()
 		{
 			if (ActionsByName != null)
 			{
 				return ActionsByName;
 			}
-#if NET8_0
-			ActionTypes = (additionalAssemblies ?? new Assembly[0])
-				.Append(Assembly.GetEntryAssembly())
+			ActionTypes = ReflectionHelpers.ReflectedAssemblies
 				.SelectMany(x => x.GetTypes())
-				.Where(x => x.GetCustomAttribute<ActionMetaAttribute>() != null)
-				.ToDictionary(x => x, x => (x.BaseType!.GetGenericArguments().Length > 0 ? x.BaseType!.GetGenericArguments()[0] : typeof(NoSettings)));
-			ActionsByName = ActionTypes.ToDictionary(
-				x => ActionHelpers.MakeStringPath(x.Key.GetCustomAttribute<ActionMetaAttribute>()!.ActionName),
-				x => (actionType: x.Key, settingsType: x.Value)
-			);
-#else
-			ActionTypes = (additionalAssemblies ?? new Assembly[0])
-				.Append(Assembly.GetEntryAssembly())
-				.SelectMany(x => x.GetTypes())
-				.Where(x => x.GetCustomAttribute<ActionMetaAttribute>() != null)
+				.Where(x => {
+					return x.GetCustomAttributesData().Any(x => x.AttributeType == typeof(ActionMetaAttribute));
+				})
 				.ToDictionary(x => x, x => (x.BaseType.GetGenericArguments().Length > 0 ? x.BaseType.GetGenericArguments()[0] : typeof(NoSettings)));
 			ActionsByName = ActionTypes.ToDictionary(
-				x => ActionHelpers.MakeStringPath(x.Key.GetCustomAttribute<ActionMetaAttribute>().ActionName),
-				x => (actionType: x.Key, settingsType: x.Value)
+				x => ActionHelpers.MakeStringPath((string)x.Key.CustomAttributes.Where(x => x.AttributeType == typeof(ActionMetaAttribute)).First().ConstructorArguments[0].Value),
+				x => (x.Key, x.Value)
 			);
-#endif
 			return ActionsByName;
 		}
+#else
+		internal static Dictionary<string, Tuple<Type, Type>> GetActionsByName()
+		{
+			if (ActionsByName != null)
+			{
+				return ActionsByName;
+			}
+			ActionTypes = ReflectionHelpers.ReflectedAssemblies
+				.SelectMany(x => x.GetTypes())
+				.Where(x => x.CustomAttributes.Where(y => y.AttributeType == typeof(ActionMetaAttribute)).FirstOrDefault() != null)
+				.ToDictionary(x => x, x => (x.BaseType.GetGenericArguments().Length > 0 ? x.BaseType.GetGenericArguments()[0] : typeof(NoSettings)));
+			ActionsByName = ActionTypes.ToDictionary(
+				x => ActionHelpers.MakeStringPath((string)x.Key.CustomAttributes.Where(y => y.AttributeType == typeof(ActionMetaAttribute)).First().ConstructorArguments[0].Value),
+				x => new Tuple<Type, Type>(x.Key, x.Value)
+			);
+			return ActionsByName;
+		}
+#endif
 
-	public string ContextID { get; }
+		public string ContextID { get; }
 
 		public string ActionID { get; }
 
@@ -83,16 +87,22 @@ namespace AutoStreamDeck.Objects
 		/// </summary>
 		public Dictionary<string, ContextualEvent> contextualEvents = new Dictionary<string, ContextualEvent>();
 
-		public ContextualAction(string contextID, string actionID, Assembly[] additionalAssemblies)
+		public ContextualAction(string contextID, string actionID)
 		{
 			ContextID = contextID;
 			ActionID = actionID;
 			// Determine the settings type
 			string actionName = actionID.Substring(actionID.LastIndexOf(".") + 1);
-			var actions = GetActionsByName(additionalAssemblies);
+			var actions = GetActionsByName();
+#if NET8_0
 			SettingsType = actions[actionName].settingsType;
 			// Create and set the ISDAction
 			AssignedAction = (ISDAction)(Activator.CreateInstance(actions[actionName].actionType) ?? throw new NullReferenceException($"Could not create an instance of {actions[actionName].actionType.Name}"));
+#else
+			SettingsType = actions[actionName].Item2;
+			// Create and set the ISDAction
+			AssignedAction = (ISDAction)(Activator.CreateInstance(actions[actionName].Item1) ?? throw new NullReferenceException($"Could not create an instance of {actions[actionName].Item1.Name}"));
+#endif
 			AssignedAction.Context = contextID;
 		}
 
