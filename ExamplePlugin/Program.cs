@@ -18,6 +18,8 @@ if (Debugger.IsAttached)
 	return;
 }
 
+StreamDeck.ShowDebugConsole();
+
 try
 {
 	// Wait for the application to launch

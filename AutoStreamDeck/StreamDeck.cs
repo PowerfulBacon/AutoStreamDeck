@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -144,7 +145,7 @@ namespace AutoStreamDeck
 #endif
 							if (context == null || action == null || payload == null || eventName == null)
 								continue;
-							LogMessage($"Handling contextual action ({context}, {action}).");
+							LogMessage($"Handling contextual action (Context: {context}, Event Name: {eventName}, Related Action: {action}).");
 							// Handle the event
 							ContextualAction locatedContext = CreateOrGetContextualAction(context, action);
 							await locatedContext.HandleEvent(eventName, payload);
@@ -177,6 +178,7 @@ namespace AutoStreamDeck
 			if (Contexts.TryGetValue(new Tuple<string, string>(context, action), out var val))
 				return val;
 			// Create a new context
+			LogMessage($"Creating new context for the action {action} in context {context}.");
 			ContextualAction createdContext = new ContextualAction(context, action);
 			Contexts.Add(new Tuple<string, string>(context, action), createdContext);
 			return createdContext;
@@ -344,6 +346,37 @@ namespace AutoStreamDeck
 			// Launch the streamdeck application
 			Process.Start(streamDeckApplicationPath ?? "C:\\Program Files\\Elgato\\StreamDeck\\StreamDeck.exe");
 		}
+
+        [DllImport("kernel32")]
+        static extern bool AllocConsole();
+
+		/// <summary>
+		/// Allocate and show a debug console, which can be helpful when debugging the app.
+		/// </summary>
+        public static void ShowDebugConsole()
+		{
+			object lockObject = new object();
+			AllocConsole();
+			OnStatusMessage += msg =>
+            {
+                lock (lockObject)
+                {
+                    Console.ForegroundColor = ConsoleColor.Blue;
+					Console.Write($"[{ DateTime.Now.ToString("HH:mm:ss:ff")}] ");
+                    Console.ResetColor();
+                    Console.WriteLine($"{msg}");
+                }
+            };
+            OnInternalError += msg =>
+			{
+				lock (lockObject)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss:ff")}] {msg}");
+					Console.ResetColor();
+				}
+			};
+        }
 
 	}
 }
