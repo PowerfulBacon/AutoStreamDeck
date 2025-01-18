@@ -19,22 +19,12 @@ namespace AutoStreamDeck.Extensions
 			if (assemblies == null)
 				assemblies = new Assembly[0];
 			ReflectedAssemblies = assemblies
+				// Load the entry assembly
 				.With(Assembly.GetEntryAssembly())
-				.Select(x => Assembly.Load(x.GetName()))
+				// Load the library assembly
+                .With(Assembly.GetAssembly(typeof(ReflectionHelpers)))
+                .Select(x => Assembly.Load(x.GetName()))
 				.ToArray();
-			/*
-			PathAssemblyResolver resolver = new PathAssemblyResolver(
-				assemblies
-					.With(typeof(Type).Assembly)
-					.With(Assembly.GetEntryAssembly())
-					.Select(x => x.Location)
-				);
-			metadataLoader = new MetadataLoadContext(resolver, typeof(Type).Assembly.GetName().ToString());
-			ReflectedAssemblies = assemblies
-				.With(Assembly.GetEntryAssembly())
-				.Select(x => metadataLoader.LoadFromAssemblyPath(x.Location))
-				.ToArray();
-			*/
 		}
 
 	}
