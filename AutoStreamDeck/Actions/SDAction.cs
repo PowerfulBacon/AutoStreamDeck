@@ -25,7 +25,10 @@ namespace AutoStreamDeck.Actions
 #else
 		string Context { get; set; }
 #endif
-	}
+
+		Task ShowAlert();
+
+    }
 
 	/// <summary>
 	/// A streamdeck aciton that has no settings associated with it.
@@ -50,9 +53,14 @@ namespace AutoStreamDeck.Actions
 		public async Task SetTitle(string title, Target target = Target.BOTH, int state = 0)
 		{
 			await StreamDeck.DispatchEvent(new SetTitleEvent(this, new SetTitlePayload(title, target, state)));
-		}
+        }
 
-		public async Task SetImage(Bitmap bitmapImage, Target target = Target.BOTH, int state = 0)
+        public async Task ShowAlert()
+        {
+            await StreamDeck.DispatchEvent(new ShowAlertEvent(this, new NoSettings()));
+        }
+
+        public async Task SetImage(Bitmap bitmapImage, Target target = Target.BOTH, int state = 0)
 		{
 			using (MemoryStream m = new MemoryStream())
 			{

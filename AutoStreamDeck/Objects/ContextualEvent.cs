@@ -89,13 +89,21 @@ namespace AutoStreamDeck.Objects
 				throw new NullReferenceException($"Could not deserialise the payload {payload.ToJsonString()} to {payloadType.Name}.");
 			StreamDeck.LogMessage($"Attempting to invoke method {payloadType.Name}...");
 			// Invoke the method
+			try
+			{
 #if NET8_0
 			Task result = (Task)linkedMethod.Invoke(parent.AssignedAction, new object[] { parent.ContextID, serialisedPayload })!;
 #else
-			Task result = (Task)linkedMethod.Invoke(parent.AssignedAction, new object[] { parent.ContextID, serialisedPayload });
+				Task result = (Task)linkedMethod.Invoke(parent.AssignedAction, new object[] { parent.ContextID, serialisedPayload });
 #endif
-			await result;
-			StreamDeck.LogMessage($"Successfully executed payload of type {payloadType.Name}.");
+				await result;
+			}
+            catch (Exception e)
+            {
+				await parent.AssignedAction.ShowAlert();
+                StreamDeck.LogException(e);
+            }
+            StreamDeck.LogMessage($"Successfully executed payload of type {payloadType.Name}.");
 		}
 
 	}
